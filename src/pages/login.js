@@ -1,26 +1,29 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 
-const Login = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [username, setUsername] = useState('');
+const Login = ({ setIsLoggedIn }) => {
+    const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-
-  const handleToggle = () => {
-    setIsLogin(!isLogin);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (isLogin) {
-      console.log('Logging in with', { username, password });
-    } else {
-      console.log('Signing up with', { username, password });
-    }
-  };
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      try {
+        const res = await axios.post('http://localhost:5000/login', { username, password }, { withCredentials: true });
+        alert('Login successful');
+        setIsLoggedIn(true);
+        window.location.href = '/profile';
+      } catch (err) {
+        alert('Error logging in: ' + (err.response ? err.response.data : err.message));
+      }
+    };
+  
 
   return (
     <div className="login-container">
-      <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
+      <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label>Username:</label>
@@ -40,11 +43,15 @@ const Login = () => {
             required
           />
         </div>
-        <button type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
+        <button type="submit">Login</button>
       </form>
-      <button onClick={handleToggle}>
-        {isLogin ? 'Switch to Sign Up' : 'Switch to Login'}
+      <Link to="/register">
+        
+      <button>
+        Switch to Sign Up
       </button>
+      </Link>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 };
